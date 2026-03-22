@@ -1,0 +1,763 @@
+{
+  "info": {
+    "name": "BizChat API",
+    "description": "Complete API collection for BizChat Backend v2.0.0\n\n## Setup\n1. Set the `baseUrl` variable to your server URL (default: `http://localhost:4500`)\n2. After signing in, copy the `accessToken` and set the `accessToken` variable\n3. Use the **Auth** folder to sign in — the access & refresh tokens are auto-captured via test scripts\n\n## Roles\n- **User** – register / book tickets\n- **Manager** – manage events, tickets, verify bookings\n- **Admin** – full access + user management",
+    "_postman_id": "bizchat-api-collection-v2",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:4500",
+      "type": "string"
+    },
+    {
+      "key": "accessToken",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "refreshToken",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "userId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "eventId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "ticketId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "bookingId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "bookingReference",
+      "value": "",
+      "type": "string"
+    }
+  ],
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{accessToken}}",
+        "type": "string"
+      }
+    ]
+  },
+  "item": [
+    {
+      "name": "Health",
+      "item": [
+        {
+          "name": "Root",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/",
+              "host": ["{{baseUrl}}"],
+              "path": [""]
+            },
+            "description": "Returns API info and version."
+          }
+        },
+        {
+          "name": "Health Check",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/health",
+              "host": ["{{baseUrl}}"],
+              "path": ["health"]
+            },
+            "description": "Returns server health status and timestamp."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "Sign Up",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "    const json = pm.response.json();",
+                  "    if (json.user && json.user._id) {",
+                  "        pm.collectionVariables.set('userId', json.user._id);",
+                  "    }",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"firstName\": \"John\",\n  \"lastName\": \"Doe\",\n  \"email\": \"john.doe@example.com\",\n  \"phoneNumber\": \"+94771234567\",\n  \"password\": \"Password123!\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/signup",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "auth", "signup"]
+            },
+            "description": "Register a new user account. Returns the created user object."
+          }
+        },
+        {
+          "name": "Sign In",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    const json = pm.response.json();",
+                  "    if (json.accessToken)  pm.collectionVariables.set('accessToken',  json.accessToken);",
+                  "    if (json.refreshToken) pm.collectionVariables.set('refreshToken', json.refreshToken);",
+                  "    if (json.user && json.user._id) pm.collectionVariables.set('userId', json.user._id);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"john.doe@example.com\",\n  \"password\": \"Password123!\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/signin",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "auth", "signin"]
+            },
+            "description": "Sign in with email & password. Auto-saves `accessToken` and `refreshToken` to collection variables."
+          }
+        },
+        {
+          "name": "Refresh Access Token",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    const json = pm.response.json();",
+                  "    if (json.accessToken)  pm.collectionVariables.set('accessToken',  json.accessToken);",
+                  "    if (json.refreshToken) pm.collectionVariables.set('refreshToken', json.refreshToken);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"refreshToken\": \"{{refreshToken}}\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/refresh-token",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "auth", "refresh-token"]
+            },
+            "description": "Exchange a refresh token for a new access + refresh token pair. Old tokens are invalidated."
+          }
+        },
+        {
+          "name": "Get Current User",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/me",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "auth", "me"]
+            },
+            "description": "Returns the authenticated user's profile. Requires Bearer token."
+          }
+        },
+        {
+          "name": "Complete Profile",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"firstName\": \"John\",\n  \"lastName\": \"Doe\",\n  \"phoneNumber\": \"+94771234567\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/complete-profile",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "auth", "complete-profile"]
+            },
+            "description": "Update the authenticated user's profile (used after Google OAuth to fill in missing info)."
+          }
+        },
+        {
+          "name": "Logout",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"refreshToken\": \"{{refreshToken}}\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/logout",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "auth", "logout"]
+            },
+            "description": "Invalidate the current access token and delete the provided refresh token."
+          }
+        },
+        {
+          "name": "Logout All Devices",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": { "mode": "raw", "raw": "" },
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/logout-all",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "auth", "logout-all"]
+            },
+            "description": "Invalidate the current access token and delete ALL refresh tokens for this user (logs out all sessions)."
+          }
+        },
+        {
+          "name": "Google OAuth – Initiate",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/google",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "auth", "google"]
+            },
+            "description": "Redirects the browser to Google's OAuth consent screen. Open in a browser – not testable directly in Postman."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Admin",
+      "description": "All endpoints require **Admin** role.",
+      "item": [
+        {
+          "name": "Create Manager",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"firstName\": \"Alice\",\n  \"lastName\": \"Manager\",\n  \"email\": \"alice.manager@example.com\",\n  \"phoneNumber\": \"+94779876543\",\n  \"password\": \"Manager123!\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/admin/managers",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "admin", "managers"]
+            },
+            "description": "Create a new manager account. Admin only."
+          }
+        },
+        {
+          "name": "Get All Users",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/admin/users?page=1&limit=10&role=user",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "admin", "users"],
+              "query": [
+                { "key": "page",  "value": "1",    "description": "Page number (default: 1)" },
+                { "key": "limit", "value": "10",   "description": "Items per page (default: 10)" },
+                { "key": "role",  "value": "user", "description": "Filter by role: user | manager | admin" }
+              ]
+            },
+            "description": "Paginated list of all users. Optionally filter by role. Admin only."
+          }
+        },
+        {
+          "name": "Get User Stats",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/admin/users/stats",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "admin", "users", "stats"]
+            },
+            "description": "Returns total counts grouped by role. Admin only."
+          }
+        },
+        {
+          "name": "Get User by ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/admin/users/{{userId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "admin", "users", "{{userId}}"]
+            },
+            "description": "Get a single user by their ID. Admin only."
+          }
+        },
+        {
+          "name": "Update User",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"firstName\": \"Alice\",\n  \"lastName\": \"Updated\",\n  \"phoneNumber\": \"+94771112222\",\n  \"role\": \"manager\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/admin/users/{{userId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "admin", "users", "{{userId}}"]
+            },
+            "description": "Update firstName, lastName, phoneNumber, or role. Only admins can change roles."
+          }
+        },
+        {
+          "name": "Delete User",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/admin/users/{{userId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "admin", "users", "{{userId}}"]
+            },
+            "description": "Permanently delete a user account. Admin only."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Events",
+      "item": [
+        {
+          "name": "Public",
+          "item": [
+            {
+              "name": "List Published Events",
+              "request": {
+                "auth": { "type": "noauth" },
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/api/events/public?page=1&limit=10&upcoming=true",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["api", "events", "public"],
+                  "query": [
+                    { "key": "page",     "value": "1",    "description": "Page number" },
+                    { "key": "limit",    "value": "10",   "description": "Items per page" },
+                    { "key": "upcoming", "value": "true", "description": "Only show future events" }
+                  ]
+                },
+                "description": "Public endpoint – returns only PUBLISHED events. No auth required."
+              }
+            },
+            {
+              "name": "Get Published Event by ID",
+              "request": {
+                "auth": { "type": "noauth" },
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/api/events/public/{{eventId}}",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["api", "events", "public", "{{eventId}}"]
+                },
+                "description": "Public endpoint – get a single event by ID. No auth required."
+              }
+            }
+          ]
+        },
+        {
+          "name": "Manager / Admin",
+          "item": [
+            {
+              "name": "Get All Events (incl. Drafts)",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/api/events?page=1&limit=10&status=draft",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["api", "events"],
+                  "query": [
+                    { "key": "page",   "value": "1",     "description": "Page number" },
+                    { "key": "limit",  "value": "10",    "description": "Items per page" },
+                    { "key": "status", "value": "draft", "description": "Filter by status: draft | published | cancelled" }
+                  ]
+                },
+                "description": "Returns all events including drafts and cancelled. Manager/Admin only."
+              }
+            },
+            {
+              "name": "Create Event",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "if (pm.response.code === 201) {",
+                      "    const json = pm.response.json();",
+                      "    if (json.data && json.data._id) pm.collectionVariables.set('eventId', json.data._id);",
+                      "}"
+                    ],
+                    "type": "text/javascript"
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [{ "key": "Content-Type", "value": "application/json" }],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"title\": \"Tech Conference 2026\",\n  \"description\": \"Annual technology conference featuring the latest innovations.\",\n  \"date\": \"2026-06-15\",\n  \"time\": \"09:00 AM\",\n  \"venue\": \"Grand Hall, BMICH\",\n  \"location\": \"Colombo, Sri Lanka\",\n  \"imageUrl\": \"https://example.com/event-banner.jpg\",\n  \"status\": \"draft\"\n}"
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/events",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["api", "events"]
+                },
+                "description": "Create a new event. Status defaults to `draft`. Manager/Admin only.\n\nAuto-saves `eventId` to collection variables."
+              }
+            },
+            {
+              "name": "Update Event",
+              "request": {
+                "method": "PUT",
+                "header": [{ "key": "Content-Type", "value": "application/json" }],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"title\": \"Tech Conference 2026 – Updated\",\n  \"status\": \"published\"\n}"
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/events/{{eventId}}",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["api", "events", "{{eventId}}"]
+                },
+                "description": "Update any allowed event field. Manager/Admin only.\n\nAllowed fields: `title`, `description`, `date`, `time`, `venue`, `location`, `imageUrl`, `status`"
+              }
+            },
+            {
+              "name": "Delete Event",
+              "request": {
+                "method": "DELETE",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/api/events/{{eventId}}",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["api", "events", "{{eventId}}"]
+                },
+                "description": "Permanently delete an event. Manager/Admin only."
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Tickets",
+      "item": [
+        {
+          "name": "Public",
+          "item": [
+            {
+              "name": "Get Tickets by Event",
+              "request": {
+                "auth": { "type": "noauth" },
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/api/tickets/event/{{eventId}}",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["api", "tickets", "event", "{{eventId}}"]
+                },
+                "description": "Returns all non-disabled ticket tiers for an event. Sorted by price ascending. No auth required."
+              }
+            },
+            {
+              "name": "Get Ticket by ID",
+              "request": {
+                "auth": { "type": "noauth" },
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/api/tickets/{{ticketId}}",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["api", "tickets", "{{ticketId}}"]
+                },
+                "description": "Get a single ticket tier by ID. No auth required."
+              }
+            }
+          ]
+        },
+        {
+          "name": "Manager / Admin",
+          "item": [
+            {
+              "name": "Get All Tickets",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/api/tickets",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["api", "tickets"]
+                },
+                "description": "Returns all ticket tiers across all events. Manager/Admin only."
+              }
+            },
+            {
+              "name": "Create Ticket",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "if (pm.response.code === 201) {",
+                      "    const json = pm.response.json();",
+                      "    if (json.data && json.data._id) pm.collectionVariables.set('ticketId', json.data._id);",
+                      "}"
+                    ],
+                    "type": "text/javascript"
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [{ "key": "Content-Type", "value": "application/json" }],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"eventId\": \"{{eventId}}\",\n  \"name\": \"General Admission\",\n  \"description\": \"Standard entry ticket\",\n  \"price\": 2500,\n  \"totalQuantity\": 200\n}"
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/tickets",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["api", "tickets"]
+                },
+                "description": "Create a ticket tier for an event. `price` is in LKR cents or your currency unit. Manager/Admin only.\n\nAuto-saves `ticketId`."
+              }
+            },
+            {
+              "name": "Update Ticket",
+              "request": {
+                "method": "PUT",
+                "header": [{ "key": "Content-Type", "value": "application/json" }],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"name\": \"VIP\",\n  \"description\": \"VIP lounge access included\",\n  \"price\": 4500,\n  \"totalQuantity\": 50,\n  \"status\": \"available\"\n}"
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/tickets/{{ticketId}}",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["api", "tickets", "{{ticketId}}"]
+                },
+                "description": "Update ticket fields. `totalQuantity` cannot be lower than `soldQuantity`. `status` values: `available` | `sold_out` | `disabled`. Manager/Admin only."
+              }
+            },
+            {
+              "name": "Delete Ticket",
+              "request": {
+                "method": "DELETE",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/api/tickets/{{ticketId}}",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["api", "tickets", "{{ticketId}}"]
+                },
+                "description": "Delete a ticket tier. Manager/Admin only."
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Bookings",
+      "item": [
+        {
+          "name": "User",
+          "item": [
+            {
+              "name": "Create Booking",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "if (pm.response.code === 201) {",
+                      "    const json = pm.response.json();",
+                      "    if (json.data && json.data._id) pm.collectionVariables.set('bookingId', json.data._id);",
+                      "    if (json.data && json.data.bookingReference) pm.collectionVariables.set('bookingReference', json.data.bookingReference);",
+                      "}"
+                    ],
+                    "type": "text/javascript"
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [{ "key": "Content-Type", "value": "application/json" }],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"ticketId\": \"{{ticketId}}\",\n  \"quantity\": 2,\n  \"attendees\": [\n    {\n      \"firstName\": \"John\",\n      \"lastName\": \"Doe\",\n      \"email\": \"john.doe@example.com\",\n      \"phoneNumber\": \"+94771234567\"\n    },\n    {\n      \"firstName\": \"Jane\",\n      \"lastName\": \"Doe\",\n      \"email\": \"jane.doe@example.com\",\n      \"phoneNumber\": \"+94777654321\"\n    }\n  ]\n}"
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/bookings",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["api", "bookings"]
+                },
+                "description": "Create a booking. `quantity` must match the number of attendee objects (max 10). Payment is handled at the venue; booking starts as PENDING/UNPAID.\n\nAuto-saves `bookingId` and `bookingReference`."
+              }
+            },
+            {
+              "name": "Get My Bookings",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/api/bookings/my?page=1&limit=10",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["api", "bookings", "my"],
+                  "query": [
+                    { "key": "page",  "value": "1"  },
+                    { "key": "limit", "value": "10" }
+                  ]
+                },
+                "description": "Returns the authenticated user's bookings, paginated."
+              }
+            },
+            {
+              "name": "Get Booking by ID",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/api/bookings/{{bookingId}}",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["api", "bookings", "{{bookingId}}"]
+                },
+                "description": "Get a single booking. Users can only view their own; managers/admins can view any."
+              }
+            },
+            {
+              "name": "Cancel Booking",
+              "request": {
+                "method": "POST",
+                "header": [],
+                "body": { "mode": "raw", "raw": "" },
+                "url": {
+                  "raw": "{{baseUrl}}/api/bookings/{{bookingId}}/cancel",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["api", "bookings", "{{bookingId}}", "cancel"]
+                },
+                "description": "Cancel a pending booking. Cannot cancel a CONFIRMED booking. Restores ticket quantity."
+              }
+            }
+          ]
+        },
+        {
+          "name": "Manager / Admin",
+          "item": [
+            {
+              "name": "Verify Booking (Mark Paid)",
+              "request": {
+                "method": "POST",
+                "header": [],
+                "body": { "mode": "raw", "raw": "" },
+                "url": {
+                  "raw": "{{baseUrl}}/api/bookings/{{bookingId}}/verify",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["api", "bookings", "{{bookingId}}", "verify"]
+                },
+                "description": "Mark a booking as PAID and CONFIRMED after receiving payment at the venue. Triggers a ticket confirmation email to attendees. Manager/Admin only."
+              }
+            },
+            {
+              "name": "Get Booking by Reference",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/api/bookings/reference/{{bookingReference}}",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["api", "bookings", "reference", "{{bookingReference}}"]
+                },
+                "description": "Look up a booking by its human-readable reference (format: `BK-XXXXXXXX`). Manager/Admin only."
+              }
+            },
+            {
+              "name": "Get All Bookings",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/api/bookings/manage/all?page=1&limit=10",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["api", "bookings", "manage", "all"],
+                  "query": [
+                    { "key": "page",  "value": "1"  },
+                    { "key": "limit", "value": "10" }
+                  ]
+                },
+                "description": "Paginated list of all bookings across all events. Manager/Admin only."
+              }
+            },
+            {
+              "name": "Get Booking Stats by Event",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/api/bookings/manage/stats/{{eventId}}",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["api", "bookings", "manage", "stats", "{{eventId}}"]
+                },
+                "description": "Returns booking statistics (totals, confirmed, pending, cancelled, revenue) for a specific event. Manager/Admin only."
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
