@@ -24,7 +24,7 @@ npm install
 Create a file named `.env` in `bizchat-backend-main` with at least:
 
 ```env
-MONGO_URI=mongodb://127.0.0.1:27017/bizchat
+MONGO_URI=mongodb:
 PORT=4500
 NODE_ENV=development
 
@@ -41,13 +41,13 @@ Optional variables (only if you use these features):
 ```env
 GOOGLE_CLIENT_ID=
 GOOGLE_CLIENT_SECRET=
-GOOGLE_CALLBACK_URL=http://localhost:4500/api/auth/google/callback
+GOOGLE_CALLBACK_URL=
 
 SMTP_HOST=
 SMTP_PORT=587
 SMTP_USER=
 SMTP_PASS=
-SMTP_FROM=noreply@bizchat.com
+SMTP_FROM=
 
 LOG_LEVEL=info
 ```
